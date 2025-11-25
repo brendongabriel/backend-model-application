@@ -1,7 +1,10 @@
 import requests
 from fastapi import HTTPException, UploadFile
+from dotenv import load_dotenv
+import os
 
-RELEVANCE_SERVICE_API_URL = "http://127.0.0.1:8000"  # URL da API do relevance-service
+load_dotenv()
+RELEVANCE_SERVICE_API_URL = os.getenv("RELEVANCE_SERVICE_API_URL")
 
 # função para cadastrar máquina no modelo
 def cadastrar_maquina(nome_maquina: str):
