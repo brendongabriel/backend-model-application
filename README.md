@@ -1,7 +1,7 @@
 
 # 🔧 Backend — Serviço de Análise de Variáveis de Produção
 
-1. [Repositório do backend da aplicação;](https://github.com/brendongabriel/backend-model-application)
+1. [Repositório do modelo da aplicação;](https://github.com/brendongabriel/relevance-service)
 2. [Repositório do frontend da aplicação;](https://github.com/brendongabriel/frontend-model-application)
 
 Backend intermediário entre o **frontend** e o **serviço de modelo**, responsável por:
