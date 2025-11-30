@@ -1,11 +1,8 @@
 
 # 🔧 Backend — Serviço de Análise de Variáveis de Produção
 
-![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python)
-![FastAPI](https://img.shields.io/badge/FastAPI-Framework-brightgreen?logo=fastapi)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue?logo=postgresql)
-![Status](https://img.shields.io/badge/Status-Ativo-success)
-![Tests](https://img.shields.io/badge/Pytest-Coberto-orange?logo=pytest)
+1. [Repositório do backend da aplicação;](https://github.com/brendongabriel/backend-model-application)
+2. [Repositório do frontend da aplicação;](https://github.com/brendongabriel/frontend-model-application)
 
 Backend intermediário entre o **frontend** e o **serviço de modelo**, responsável por:
 
@@ -40,10 +37,6 @@ backend/
 │   ├── services/        # Integrações externas
 │   └── utils/           # Helpers
 │
-│── tests/
-│   ├── test_api.py
-│   └── test_services.py
-│
 │── docs/
 │   └── arquitetura.png
 │
@@ -53,20 +46,345 @@ backend/
 
 ---
 
+
+# ⚙️ **4. Principais APIs**
+
+- POST /machines/ - criação da máquina e criação do modelo
+- POST /train/ - treinamento do modelo
+- POST /webhook/treinamento/ - recebimento do treinamento do modelo
+- GET /ranking/ - busca do ranking da maquina
+- GET /machines/ - busca das maquinas
+- DELETE /machines/{id} - deletar as maquinas
+
+<details>
+  <summary><strong>openapi.json</strong></summary>
+
+```json
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "FastAPI",
+        "version": "0.1.0"
+    },
+    "paths": {
+        "/machines/": {
+            "get": {
+                "summary": "List Machines",
+                "operationId": "list_machines_machines__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/Machine"
+                                    },
+                                    "type": "array",
+                                    "title": "Response List Machines Machines  Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create Machine",
+                "operationId": "create_machine_machines__post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MachineCreate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Machine"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/machines/{machine_id}": {
+            "delete": {
+                "summary": "Delete Machine",
+                "operationId": "delete_machine_machines__machine_id__delete",
+                "parameters": [
+                    {
+                        "name": "machine_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Machine Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/train/": {
+            "post": {
+                "summary": "Train Model",
+                "operationId": "train_model_train__post",
+                "parameters": [
+                    {
+                        "name": "machine_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Machine Id"
+                        }
+                    },
+                    {
+                        "name": "target_column",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Target Column"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_train_model_train__post"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/webhook/treinamento/": {
+            "post": {
+                "summary": "Webhook Treinamento",
+                "operationId": "webhook_treinamento_webhook_treinamento__post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ranking/": {
+            "get": {
+                "summary": "Get Ranking",
+                "operationId": "get_ranking_ranking__get",
+                "parameters": [
+                    {
+                        "name": "machine_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Machine Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Body_train_model_train__post": {
+                "properties": {
+                    "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "title": "File"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "file"
+                ],
+                "title": "Body_train_model_train__post"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "Machine": {
+                "properties": {
+                    "machine_name": {
+                        "type": "string",
+                        "title": "Machine Name"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "model_id": {
+                        "type": "integer",
+                        "title": "Model Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "machine_name",
+                    "id",
+                    "status",
+                    "model_id"
+                ],
+                "title": "Machine"
+            },
+            "MachineCreate": {
+                "properties": {
+                    "machine_name": {
+                        "type": "string",
+                        "title": "Machine Name"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "machine_name"
+                ],
+                "title": "MachineCreate"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}
+```
+</details> 
+---
+
 # 🚀 **3. Como Rodar Localmente**
 
-### 🔹 1. Criar ambiente
-```bash
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-```
-
-### 🔹 2. Instalar dependências
-```bash
-pip install -r requirements.txt
-```
-
-### 🔹 3. Configurar variáveis de ambiente
+### 🔹 1. Configurar variáveis de ambiente
 
 Crie `.env`:
 
@@ -86,16 +404,6 @@ API disponível em:
 
 ---
 
-# ⚙️ **4. Principais APIs**
-
-- POST /models/
-- POST /train/
-- GET /ranking/
-- GET /models/
-- DELETE /models/{id}
-
----
-
 # 🧠 **5. Fluxo de Treinamento**
 
 <p align="center">
@@ -103,30 +411,11 @@ API disponível em:
 </p>
 
 
-
-# 🧪 **6. Testes**
-
-Rodar testes:
-
-```bash
-pytest -v
-```
-
-O backend possui testes para:
-
-✔ CRUD das máquinas  
-✔ Rotas principais  
-✔ Integração com serviço do modelo (mockado)
-
----
-
 # 📝 **8. Referências**
 
 - FASTAPI — Documentação Oficial  
 - PostgreSQL — Guia de Desenvolvimento  
-- Uvicorn — Servidor ASGI  
-- SHAP — Interpretação de Modelos  
-- Scikit-Learn — RandomForestRegressor
+- Uvicorn — Servidor ASGI 
 
 ---
 
